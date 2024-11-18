@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.tsx'
 import { AuthenticationResult, EventMessage, EventType, PublicClientApplication } from '@azure/msal-browser';
 import { msalConfig } from './authConfig.jsx';
+import { HashRouter } from 'react-router-dom';
+import { MsalProvider } from '@azure/msal-react';
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
@@ -18,15 +20,19 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 }
 
 // Listen for sign-in event and set active account
-msalInstance.addEventCallback((event : EventMessage) => {
+msalInstance.addEventCallback((event: EventMessage) => {
   if (event.eventType === EventType.LOGIN_SUCCESS && (event.payload as AuthenticationResult).account) {
-      const account = (event.payload as AuthenticationResult).account;
-      msalInstance.setActiveAccount(account);
+    const account = (event.payload as AuthenticationResult).account;
+    msalInstance.setActiveAccount(account);
   }
 });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App instance={msalInstance}/>
+    <MsalProvider instance={msalInstance}>
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </MsalProvider>
   </StrictMode>,
 )
